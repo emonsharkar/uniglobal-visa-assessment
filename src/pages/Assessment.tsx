@@ -26,7 +26,12 @@ import {
   Mail,
   Phone,
   FileText,
-  Award
+  Award,
+  BookOpen,
+  BookCheck,
+  FileCheck,
+  Globe,
+  Brain
 } from "lucide-react";
 
 export default function Assessment() {
@@ -91,16 +96,16 @@ export default function Assessment() {
           >
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {[
-                { name: 'IELTS', icon: '🇬🇧' },
-                { name: 'TOEFL', icon: '🇺🇸' },
-                { name: 'PTE', icon: '🎓' },
-                { name: 'Duolingo', icon: '🦉' },
-                { name: 'GRE', icon: '📚' }
+                { name: 'IELTS', icon: <BookOpen className="w-12 h-12 text-primary" /> },
+                { name: 'TOEFL', icon: <BookCheck className="w-12 h-12 text-primary" /> },
+                { name: 'PTE', icon: <FileCheck className="w-12 h-12 text-primary" /> },
+                { name: 'Duolingo', icon: <Globe className="w-12 h-12 text-primary" /> },
+                { name: 'GRE', icon: <Brain className="w-12 h-12 text-primary" /> }
               ].map((test) => (
                 <SelectableCard
                   key={test.name}
                   title={test.name}
-                  icon={<span className="text-4xl">{test.icon}</span>}
+                  icon={test.icon}
                   selected={data.englishTest === test.name}
                   onClick={() => {
                     setData({ ...data, englishTest: test.name as any });
@@ -180,6 +185,7 @@ export default function Assessment() {
               <Button 
                 className="w-full mt-6" 
                 size="lg"
+                disabled={!data.scores?.overall || !data.scores?.speaking || !data.scores?.listening || !data.scores?.reading || !data.scores?.writing}
                 onClick={() => setCurrentStep(4)}
               >
                 Continue
