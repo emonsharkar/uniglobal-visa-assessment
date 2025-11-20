@@ -647,6 +647,16 @@ export default function Assessment() {
         
         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
         
+        {currentStep > 1 && (
+          <Button 
+            variant="outline" 
+            onClick={() => setCurrentStep(currentStep - 1)}
+            className="mb-4"
+          >
+            ← Back
+          </Button>
+        )}
+        
         {renderStep()}
       </div>
     </div>
