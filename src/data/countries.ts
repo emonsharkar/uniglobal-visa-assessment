@@ -32,4 +32,5 @@ export const degreePrograms = [
   'Nursing',
   'Architecture',
   'Education',
+  'Others',
 ];
