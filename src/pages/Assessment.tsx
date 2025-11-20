@@ -302,7 +302,12 @@ export default function Assessment() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <SelectableCard
                 title="High Academic with High Financial"
-                description="60-70%+ | €12,000-€20,000+"
+                description={
+                  <div className="space-y-1">
+                    <div className="font-semibold">Academic: 60-70%+</div>
+                    <div className="font-semibold">Financial: €12,000 - €20,000+</div>
+                  </div>
+                }
                 icon={<span className="text-3xl">📚💰</span>}
                 selected={data.status === 'high-high'}
                 onClick={() => {
@@ -312,7 +317,12 @@ export default function Assessment() {
               />
               <SelectableCard
                 title="High Academic with Low Financial"
-                description="60-70%+ | €2,000-€6,000"
+                description={
+                  <div className="space-y-1">
+                    <div className="font-semibold">Academic: 60-70%+</div>
+                    <div className="font-semibold">Financial: €2,000 - €6,000</div>
+                  </div>
+                }
                 icon={<span className="text-3xl">📚💵</span>}
                 selected={data.status === 'high-low'}
                 onClick={() => {
@@ -322,7 +332,12 @@ export default function Assessment() {
               />
               <SelectableCard
                 title="Average Academic with High Financial"
-                description="50-60% | €12,000-€20,000+"
+                description={
+                  <div className="space-y-1">
+                    <div className="font-semibold">Academic: 50-60%</div>
+                    <div className="font-semibold">Financial: €12,000 - €20,000+</div>
+                  </div>
+                }
                 icon={<span className="text-3xl">📊💰</span>}
                 selected={data.status === 'avg-high'}
                 onClick={() => {
@@ -332,7 +347,12 @@ export default function Assessment() {
               />
               <SelectableCard
                 title="Average Academic with Average Financial"
-                description="50-60% | €6,000-€12,000"
+                description={
+                  <div className="space-y-1">
+                    <div className="font-semibold">Academic: 50-60%</div>
+                    <div className="font-semibold">Financial: €6,000 - €12,000</div>
+                  </div>
+                }
                 icon={<span className="text-3xl">📊💵</span>}
                 selected={data.status === 'avg-avg'}
                 onClick={() => {
@@ -342,7 +362,12 @@ export default function Assessment() {
               />
               <SelectableCard
                 title="Low Academic with High Financial"
-                description="40-50% | €12,000-€20,000+"
+                description={
+                  <div className="space-y-1">
+                    <div className="font-semibold">Academic: 40-50%</div>
+                    <div className="font-semibold">Financial: €12,000 - €20,000+</div>
+                  </div>
+                }
                 icon={<span className="text-3xl">📉💰</span>}
                 selected={data.status === 'low-high'}
                 onClick={() => {
@@ -368,6 +393,7 @@ export default function Assessment() {
           description="Select the countries you're interested in (you can select multiple)"
         >
           <CountryGrid 
+            selectedStatus={data.status}
             onContinue={(countries) => {
               setData({ ...data, selectedCountries: countries });
               setCurrentStep(6);

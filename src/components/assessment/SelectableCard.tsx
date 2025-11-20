@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface SelectableCardProps {
   title: string;
-  description?: string;
+  description?: string | ReactNode;
   icon?: ReactNode;
   selected: boolean;
   onClick: () => void;
@@ -44,7 +44,7 @@ export const SelectableCard = ({
       <div className="space-y-2 text-center">
         <h3 className="font-semibold text-lg text-foreground">{title}</h3>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <div className="text-sm text-muted-foreground">{description}</div>
         )}
       </div>
     </Card>

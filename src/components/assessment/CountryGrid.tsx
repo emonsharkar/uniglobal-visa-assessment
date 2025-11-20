@@ -6,11 +6,19 @@ import { cn } from "@/lib/utils";
 import { countries } from "@/data/countries";
 
 interface CountryGridProps {
+  selectedStatus?: string;
   onContinue: (selected: string[]) => void;
 }
 
-export const CountryGrid = ({ onContinue }: CountryGridProps) => {
+export const CountryGrid = ({ selectedStatus, onContinue }: CountryGridProps) => {
   const [selected, setSelected] = useState<string[]>([]);
+  
+  // Filter countries based on selected status
+  const filteredCountries = selectedStatus 
+    ? countries.filter(country => 
+        country.eligibleStatus?.includes(selectedStatus)
+      )
+    : countries;
 
   const toggleCountry = (code: string) => {
     setSelected(prev => 
@@ -23,7 +31,7 @@ export const CountryGrid = ({ onContinue }: CountryGridProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {countries.map((country) => (
+        {filteredCountries.map((country) => (
           <Card
             key={country.code}
             className={cn(
