@@ -13,6 +13,9 @@ import {
 import { calculateVisaRatio, VisaStatus } from "@/utils/calculateVisaRatio";
 import { AssessmentData } from "@/types/assessment";
 import { countries } from "@/data/countries";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 interface ResultsScreenProps {
   data: AssessmentData;
@@ -21,6 +24,28 @@ interface ResultsScreenProps {
 
 export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
   const { percentage, status, message } = calculateVisaRatio(data);
+
+  // Send email when results are displayed
+  useEffect(() => {
+    const sendEmail = async () => {
+      try {
+        const { error } = await supabase.functions.invoke('send-assessment-email', {
+          body: data,
+        });
+        
+        if (error) {
+          console.error('Error sending email:', error);
+          toast.error('Failed to send assessment data. Please contact us directly.');
+        } else {
+          console.log('Assessment email sent successfully');
+        }
+      } catch (err) {
+        console.error('Error invoking email function:', err);
+      }
+    };
+
+    sendEmail();
+  }, [data]);
 
   const getStatusIcon = (status: VisaStatus) => {
     switch (status) {
@@ -138,7 +163,7 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
           <Button 
             size="lg" 
             className="flex-1 gap-2"
-            onClick={() => window.location.href = 'https://assessment.visathingforstudent.com'}
+            onClick={() => window.open('https://uniglobal.com.bd/contact-us/', '_blank')}
           >
             <Phone className="w-5 h-5" />
             Contact Us
