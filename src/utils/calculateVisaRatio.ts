@@ -11,68 +11,85 @@ export const calculateVisaRatio = (data: AssessmentData): { percentage: number; 
   let score = 0;
   let maxScore = 0;
 
-  // English Test Score (30 points max)
-  maxScore += 30;
+  // English Test Score (35 points max) - More weight on actual test scores
+  maxScore += 35;
   if (data.hasEnglishTest && data.scores) {
     const overall = parseFloat(data.scores.overall || '0');
-    if (overall >= 7.0) score += 30;
-    else if (overall >= 6.5) score += 25;
-    else if (overall >= 6.0) score += 20;
-    else if (overall >= 5.5) score += 15;
-    else score += 10;
+    const speaking = parseFloat(data.scores.speaking || '0');
+    const listening = parseFloat(data.scores.listening || '0');
+    const reading = parseFloat(data.scores.reading || '0');
+    const writing = parseFloat(data.scores.writing || '0');
+    
+    // Score based on overall band
+    if (overall >= 8.0) score += 35;
+    else if (overall >= 7.5) score += 33;
+    else if (overall >= 7.0) score += 30;
+    else if (overall >= 6.5) score += 26;
+    else if (overall >= 6.0) score += 22;
+    else if (overall >= 5.5) score += 17;
+    else score += 12;
+    
+    // Bonus for balanced scores (no module below 6.0)
+    if (speaking >= 6.0 && listening >= 6.0 && reading >= 6.0 && writing >= 6.0) {
+      score += 2;
+    }
   } else if (data.willAppear) {
-    score += 15; // Partial credit for planning to take test
+    score += 12; // Planning to take test
   } else if (data.hasMOI) {
-    score += 20; // Medium of Instruction acceptable
+    score += 18; // Medium of Instruction is valuable
   } else {
-    score += 5; // Minimal score if no English proof
+    score += 5; // Minimal score
   }
 
-  // Academic & Financial Status (35 points max)
-  maxScore += 35;
+  // Academic & Financial Status (30 points max)
+  maxScore += 30;
   if (data.status === 'high-high') {
-    score += 35;
-  } else if (data.status === 'high-low') {
-    score += 28;
-  } else if (data.status === 'avg-high') {
     score += 30;
+  } else if (data.status === 'avg-high') {
+    score += 27;
+  } else if (data.status === 'high-low') {
+    score += 24;
   } else if (data.status === 'avg-avg') {
-    score += 22;
-  } else if (data.status === 'low-high') {
-    score += 25;
-  } else {
-    score += 15;
-  }
-
-  // Qualification Level (20 points max)
-  maxScore += 20;
-  if (data.qualification === 'PhD') {
     score += 20;
-  } else if (data.qualification === 'Masters') {
-    score += 18;
-  } else if (data.qualification === 'Bachelors') {
-    score += 15;
-  } else if (data.qualification === 'HSC') {
+  } else if (data.status === 'low-high') {
+    score += 22;
+  } else {
     score += 12;
-  } else if (data.qualification === 'SSC') {
-    score += 8;
   }
 
-  // Qualification Details (10 points max)
-  maxScore += 10;
+  // Qualification Level (15 points max)
+  maxScore += 15;
+  if (data.qualification === 'PhD') {
+    score += 15;
+  } else if (data.qualification === 'Masters') {
+    score += 14;
+  } else if (data.qualification === 'Bachelors') {
+    score += 12;
+  } else if (data.qualification === 'HSC') {
+    score += 9;
+  } else if (data.qualification === 'SSC') {
+    score += 6;
+  }
+
+  // Qualification Details (15 points max) - More emphasis on academic performance
+  maxScore += 15;
   if (data.qualificationDetails) {
     const result = parseFloat(data.qualificationDetails.result || '0');
     if (['SSC', 'HSC'].includes(data.qualification || '')) {
       // GPA out of 5
-      if (result >= 4.5) score += 10;
-      else if (result >= 4.0) score += 8;
-      else if (result >= 3.5) score += 6;
+      if (result >= 5.0) score += 15;
+      else if (result >= 4.5) score += 13;
+      else if (result >= 4.0) score += 11;
+      else if (result >= 3.5) score += 8;
+      else if (result >= 3.0) score += 6;
       else score += 4;
     } else {
       // CGPA out of 4
-      if (result >= 3.7) score += 10;
-      else if (result >= 3.3) score += 8;
-      else if (result >= 3.0) score += 6;
+      if (result >= 3.75) score += 15;
+      else if (result >= 3.5) score += 13;
+      else if (result >= 3.25) score += 11;
+      else if (result >= 3.0) score += 8;
+      else if (result >= 2.75) score += 6;
       else score += 4;
     }
   }
@@ -80,13 +97,13 @@ export const calculateVisaRatio = (data: AssessmentData): { percentage: number; 
   // Dependents (5 points max)
   maxScore += 5;
   if (data.dependents === 0) {
-    score += 5; // No dependents is easier
+    score += 5;
   } else if (data.dependents === 1) {
     score += 4;
   } else if (data.dependents === 2) {
-    score += 3;
-  } else {
     score += 2;
+  } else {
+    score += 1;
   }
 
   const percentage = Math.round((score / maxScore) * 100);

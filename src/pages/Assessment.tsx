@@ -16,6 +16,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -151,14 +153,32 @@ export default function Assessment() {
     // Step 3: Branch continues
     if (currentStep === 3) {
       if (data.hasEnglishTest) {
-        // 2.1.2: Your scores
+        // 2.1.2: Your scores - Auto-calculate overall
+        const calculateOverallScore = (scores: any) => {
+          if (!scores?.speaking || !scores?.listening || !scores?.reading || !scores?.writing) {
+            return '';
+          }
+          const avg = (
+            parseFloat(scores.speaking) + 
+            parseFloat(scores.listening) + 
+            parseFloat(scores.reading) + 
+            parseFloat(scores.writing)
+          ) / 4;
+          
+          // Round to nearest 0.5 for IELTS/PTE style scoring
+          return (Math.round(avg * 2) / 2).toFixed(1);
+        };
+
+        const currentScores = data.scores || {};
+        const calculatedOverall = calculateOverallScore(currentScores);
+
         return (
           <QuestionCard 
             title="Your Test Scores"
-            description={`Please enter your ${data.englishTest} scores for each section`}
+            description={`Please enter your ${data.englishTest} scores for each section. Overall score will be calculated automatically.`}
           >
             <div className="space-y-4">
-              {['Overall', 'Speaking', 'Listening', 'Reading', 'Writing'].map((section) => (
+              {['Speaking', 'Listening', 'Reading', 'Writing'].map((section) => (
                 <div key={section} className="space-y-2">
                   <Label htmlFor={section.toLowerCase()} className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
@@ -169,23 +189,42 @@ export default function Assessment() {
                     type="number"
                     step="0.5"
                     placeholder={`Enter ${section.toLowerCase()} score`}
-                    value={data.scores?.[section.toLowerCase() as keyof typeof data.scores] || ''}
+                    value={currentScores?.[section.toLowerCase() as keyof typeof currentScores] || ''}
                     onChange={(e) => {
+                      const newScores = {
+                        ...currentScores,
+                        [section.toLowerCase()]: e.target.value,
+                      };
+                      const overall = calculateOverallScore(newScores);
                       setData({
                         ...data,
                         scores: {
-                          ...data.scores,
-                          [section.toLowerCase()]: e.target.value,
+                          ...newScores,
+                          overall,
                         } as any,
                       });
                     }}
                   />
                 </div>
               ))}
+              
+              <div className="space-y-2 pt-4 border-t">
+                <Label className="flex items-center gap-2 font-bold">
+                  <Award className="w-4 h-4 text-primary" />
+                  Overall Score (Calculated)
+                </Label>
+                <Input
+                  type="text"
+                  value={calculatedOverall || 'Enter all scores above'}
+                  disabled
+                  className="bg-muted font-bold text-lg"
+                />
+              </div>
+              
               <Button 
                 className="w-full mt-6" 
                 size="lg"
-                disabled={!data.scores?.overall || !data.scores?.speaking || !data.scores?.listening || !data.scores?.reading || !data.scores?.writing}
+                disabled={!data.scores?.speaking || !data.scores?.listening || !data.scores?.reading || !data.scores?.writing}
                 onClick={() => setCurrentStep(4)}
               >
                 Continue
@@ -440,6 +479,7 @@ export default function Assessment() {
                 id="email"
                 type="email"
                 placeholder="your.email@example.com"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 value={data.personalInfo?.email || ''}
                 onChange={(e) => {
                   setData({
@@ -457,20 +497,20 @@ export default function Assessment() {
                 <Phone className="w-4 h-4 text-primary" />
                 Phone Number
               </Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+880 1XXX XXXXXX"
+              <PhoneInput
+                international
+                defaultCountry="BD"
                 value={data.personalInfo?.phone || ''}
-                onChange={(e) => {
+                onChange={(value) => {
                   setData({
                     ...data,
                     personalInfo: {
                       ...data.personalInfo,
-                      phone: e.target.value,
+                      phone: value || '',
                     } as any,
                   });
                 }}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <Button 
