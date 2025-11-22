@@ -16,7 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import PhoneInput from 'react-phone-number-input';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { 
   CheckCircle2, 
@@ -479,7 +479,6 @@ export default function Assessment() {
                 id="email"
                 type="email"
                 placeholder="your.email@example.com"
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 value={data.personalInfo?.email || ''}
                 onChange={(e) => {
                   setData({
@@ -491,6 +490,9 @@ export default function Assessment() {
                   });
                 }}
               />
+              {data.personalInfo?.email && !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personalInfo.email)) && (
+                <p className="text-xs text-destructive">Please enter a valid email address</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone" className="flex items-center gap-2">
@@ -512,11 +514,20 @@ export default function Assessment() {
                 }}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
+              {data.personalInfo?.phone && !isPossiblePhoneNumber(data.personalInfo.phone) && (
+                <p className="text-xs text-destructive">Please enter a valid phone number</p>
+              )}
             </div>
             <Button 
               className="w-full mt-6" 
               size="lg"
-              disabled={!data.personalInfo?.name || !data.personalInfo?.email || !data.personalInfo?.phone}
+              disabled={
+                !data.personalInfo?.name || 
+                !data.personalInfo?.email || 
+                !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.personalInfo.email)) ||
+                !data.personalInfo?.phone ||
+                !isPossiblePhoneNumber(data.personalInfo.phone)
+              }
               onClick={() => setCurrentStep(7)}
             >
               Continue
