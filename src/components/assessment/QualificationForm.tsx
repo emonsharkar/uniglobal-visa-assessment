@@ -105,13 +105,24 @@ export const QualificationForm = ({ qualification, onSubmit }: QualificationForm
           value={details.yearOfPassing}
           onChange={(e) => setDetails({ ...details, yearOfPassing: e.target.value })}
         />
+        {details.yearOfPassing && (details.yearOfPassing.length !== 4 || parseInt(details.yearOfPassing) < 1980 || parseInt(details.yearOfPassing) > new Date().getFullYear()) && (
+          <p className="text-xs text-destructive">Please enter a valid 4-digit year between 1980 and {new Date().getFullYear()}</p>
+        )}
       </div>
 
       <Button 
         className="w-full mt-6" 
         size="lg"
         onClick={handleSubmit}
-        disabled={!details.result || !details.yearOfPassing || (isSchoolLevel && !details.group) || (!isSchoolLevel && !details.department)}
+        disabled={
+          !details.result || 
+          !details.yearOfPassing || 
+          details.yearOfPassing.length !== 4 || 
+          parseInt(details.yearOfPassing) < 1980 || 
+          parseInt(details.yearOfPassing) > new Date().getFullYear() ||
+          (isSchoolLevel && !details.group) || 
+          (!isSchoolLevel && !details.department)
+        }
       >
         Continue
       </Button>
