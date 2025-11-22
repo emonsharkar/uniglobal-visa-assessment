@@ -589,18 +589,39 @@ export default function Assessment() {
 
     // Step 9: Preferred degree
     if (currentStep === 9) {
+      // Filter degrees based on qualification
+      const getEligibleDegrees = () => {
+        const allDegrees = [
+          { value: 'Bachelors', icon: '🎓' },
+          { value: 'Masters', icon: '📚' },
+          { value: 'Doctorate', icon: '🎯' },
+          { value: 'Diploma', icon: '📜' },
+        ];
+
+        switch (data.qualification) {
+          case 'SSC':
+            return allDegrees.filter(d => d.value === 'Diploma');
+          case 'HSC':
+            return allDegrees.filter(d => ['Diploma', 'Bachelors'].includes(d.value));
+          case 'Bachelors':
+            return allDegrees.filter(d => ['Bachelors', 'Diploma', 'Masters', 'Doctorate'].includes(d.value));
+          case 'Masters':
+          case 'PhD':
+            return allDegrees.filter(d => ['Diploma', 'Bachelors', 'Masters', 'Doctorate'].includes(d.value));
+          default:
+            return allDegrees;
+        }
+      };
+
+      const eligibleDegrees = getEligibleDegrees();
+
       return (
         <QuestionCard 
           title="Preferred Degree to be Achieved"
           description="What degree do you want to pursue?"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { value: 'Bachelors', icon: '🎓' },
-              { value: 'Masters', icon: '📚' },
-              { value: 'Doctorate', icon: '🎯' },
-              { value: 'Diploma', icon: '📜' },
-            ].map((degree) => (
+            {eligibleDegrees.map((degree) => (
               <SelectableCard
                 key={degree.value}
                 title={degree.value}
