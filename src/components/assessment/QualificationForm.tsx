@@ -18,8 +18,35 @@ export const QualificationForm = ({ qualification, onSubmit }: QualificationForm
 
   const isSchoolLevel = qualification === 'SSC' || qualification === 'HSC';
 
+  const validateResult = () => {
+    if (!details.result) return false;
+    const value = parseFloat(details.result);
+    if (isNaN(value)) return false;
+    
+    if (isSchoolLevel) {
+      // GPA: 0 to 5
+      return value >= 0 && value <= 5;
+    } else {
+      // CGPA: 0 to 4
+      return value >= 0 && value <= 4;
+    }
+  };
+
+  const getResultError = () => {
+    if (!details.result) return null;
+    const value = parseFloat(details.result);
+    if (isNaN(value)) return "Please enter a valid number";
+    
+    if (isSchoolLevel) {
+      if (value < 0 || value > 5) return "GPA must be between 0 and 5";
+    } else {
+      if (value < 0 || value > 4) return "CGPA must be between 0 and 4";
+    }
+    return null;
+  };
+
   const handleSubmit = () => {
-    if (details.result && details.yearOfPassing) {
+    if (details.result && details.yearOfPassing && validateResult()) {
       onSubmit(details);
     }
   };
@@ -34,12 +61,16 @@ export const QualificationForm = ({ qualification, onSubmit }: QualificationForm
           id="result"
           type="number"
           step="0.01"
+          min="0"
           max={isSchoolLevel ? "5.00" : "4.00"}
           placeholder={isSchoolLevel ? "e.g., 4.50" : "e.g., 3.75"}
           value={details.result}
           onChange={(e) => setDetails({ ...details, result: e.target.value })}
         />
-        {!isSchoolLevel && (
+        {getResultError() && (
+          <p className="text-xs text-destructive">{getResultError()}</p>
+        )}
+        {!isSchoolLevel && !getResultError() && (
           <p className="text-xs text-muted-foreground">
             <a 
               href="https://ugc.portal.gov.bd/sites/default/files/files/ugc.portal.gov.bd/page/ad5e35a2_65ec_4a35_948a_b4a7a54de7ba/Uniform%20Recommended%20Grading%20System%20%281%29.pdf"
@@ -116,6 +147,7 @@ export const QualificationForm = ({ qualification, onSubmit }: QualificationForm
         onClick={handleSubmit}
         disabled={
           !details.result || 
+          !validateResult() ||
           !details.yearOfPassing || 
           details.yearOfPassing.length !== 4 || 
           parseInt(details.yearOfPassing) < 1980 || 
