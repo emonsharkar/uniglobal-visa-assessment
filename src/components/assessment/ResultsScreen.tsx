@@ -8,13 +8,14 @@ import {
   XCircle,
   Phone,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Loader2
 } from "lucide-react";
 import { calculateVisaRatio, VisaStatus } from "@/utils/calculateVisaRatio";
 import { AssessmentData } from "@/types/assessment";
 import { countries } from "@/data/countries";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface ResultsScreenProps {
@@ -23,28 +24,59 @@ interface ResultsScreenProps {
 }
 
 export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
-  const { percentage, status, message } = calculateVisaRatio(data);
+  const [percentage, setPercentage] = useState<number>(-1);
+  const [status, setStatus] = useState<VisaStatus>("NEED_CONSULTATION");
+  const [message, setMessage] = useState<string>("Analyzing your profile...");
+  const [isCalculating, setIsCalculating] = useState(true);
 
-  // Send email when results are displayed
+  // Calculate visa ratio using AI and send email when results are displayed
   useEffect(() => {
-    const sendEmail = async () => {
+    const processResults = async () => {
       try {
-        const { error } = await supabase.functions.invoke('send-assessment-email', {
+        setIsCalculating(true);
+        
+        // Call AI-powered calculation
+        const { data: calcResult, error: calcError } = await supabase.functions.invoke('calculate-visa-ratio', {
           body: data,
         });
         
-        if (error) {
-          console.error('Error sending email:', error);
+        if (calcError) {
+          console.error('Error calculating visa ratio:', calcError);
+          // Fallback to simple calculation
+          const fallback = calculateVisaRatio(data);
+          setPercentage(fallback.percentage);
+          setStatus(fallback.status);
+          setMessage(fallback.message);
+        } else {
+          setPercentage(calcResult.percentage);
+          setStatus(calcResult.status);
+          setMessage(calcResult.message);
+        }
+        
+        // Send email
+        const { error: emailError } = await supabase.functions.invoke('send-assessment-email', {
+          body: data,
+        });
+        
+        if (emailError) {
+          console.error('Error sending email:', emailError);
           toast.error('Failed to send assessment data. Please contact us directly.');
         } else {
           console.log('Assessment email sent successfully');
         }
       } catch (err) {
-        console.error('Error invoking email function:', err);
+        console.error('Error processing results:', err);
+        // Fallback to simple calculation
+        const fallback = calculateVisaRatio(data);
+        setPercentage(fallback.percentage);
+        setStatus(fallback.status);
+        setMessage(fallback.message);
+      } finally {
+        setIsCalculating(false);
       }
     };
 
-    sendEmail();
+    processResults();
   }, [data]);
 
   const getStatusIcon = (status: VisaStatus) => {
@@ -84,6 +116,8 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
   const selectedCountries = countries.filter(c => 
     data.selectedCountries?.includes(c.code)
   );
+  
+  const hasOtherCountry = data.selectedCountries?.includes('OTHER');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -95,7 +129,11 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
         <div className="text-center space-y-6">
           <div className="flex justify-center">
             <div className="bg-primary/10 p-6 rounded-full">
-              {getStatusIcon(status)}
+              {isCalculating ? (
+                <Loader2 className="w-20 h-20 text-primary animate-spin" />
+              ) : (
+                getStatusIcon(status)
+              )}
             </div>
           </div>
 
@@ -123,7 +161,7 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
             {message}
           </p>
 
-          {selectedCountries.length > 0 && (
+          {(selectedCountries.length > 0 || hasOtherCountry) && (
             <div className="space-y-3">
               <p className="text-sm font-semibold text-muted-foreground">
                 Selected Countries:
@@ -138,6 +176,12 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
                     <span className="text-sm font-medium">{country.name}</span>
                   </div>
                 ))}
+                {hasOtherCountry && (
+                  <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2">
+                    <span className="text-2xl">🌍</span>
+                    <span className="text-sm font-medium">Other</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
