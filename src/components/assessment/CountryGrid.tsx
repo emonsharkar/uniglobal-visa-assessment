@@ -54,6 +54,26 @@ export const CountryGrid = ({ selectedStatus, onContinue }: CountryGridProps) =>
             </div>
           </Card>
         ))}
+        <Card
+          className={cn(
+            "p-4 cursor-pointer transition-all duration-200 relative",
+            "hover:shadow-lg hover:scale-[1.02]",
+            selected.includes('OTHER')
+              ? "border-primary border-2 bg-primary/5"
+              : "border-border hover:border-primary/50"
+          )}
+          onClick={() => toggleCountry('OTHER')}
+        >
+          {selected.includes('OTHER') && (
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+              <Check className="w-3 h-3" />
+            </div>
+          )}
+          <div className="text-center space-y-2">
+            <div className="text-4xl">🌍</div>
+            <p className="text-sm font-medium text-foreground">Other</p>
+          </div>
+        </Card>
       </div>
       <Button
         className="w-full"
