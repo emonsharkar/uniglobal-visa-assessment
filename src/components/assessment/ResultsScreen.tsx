@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { 
   CheckCircle2, 
   AlertCircle, 
@@ -120,22 +121,36 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
   const hasOtherCountry = data.selectedCountries?.includes('OTHER');
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="max-w-3xl w-full p-8 md:p-12 space-y-8 shadow-lg">
-        <div className="flex justify-center">
-          <Logo className="h-12" />
-        </div>
-
-        <div className="text-center space-y-6">
-          <div className="flex justify-center">
-            <div className="bg-primary/10 p-6 rounded-full">
-              {isCalculating ? (
-                <Loader2 className="w-20 h-20 text-primary animate-spin" />
-              ) : (
-                getStatusIcon(status)
-              )}
+    <>
+      <Dialog open={isCalculating}>
+        <DialogContent className="sm:max-w-md border-none shadow-2xl">
+          <div className="flex flex-col items-center justify-center py-8 space-y-6">
+            <Logo className="h-16" />
+            <div className="relative">
+              <Loader2 className="w-16 h-16 text-primary animate-spin" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-semibold text-foreground">Analyzing Your Profile</h3>
+              <p className="text-sm text-muted-foreground">
+                Our AI is evaluating your visa eligibility...
+              </p>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="max-w-3xl w-full p-8 md:p-12 space-y-8 shadow-lg">
+          <div className="flex justify-center">
+            <Logo className="h-12" />
+          </div>
+
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="bg-primary/10 p-6 rounded-full">
+                {getStatusIcon(status)}
+              </div>
+            </div>
 
           <div className="space-y-2">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -225,10 +240,11 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
           </Button>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Our consultants will contact you via {data.communicationPreference || 'your preferred method'} within 24 hours
-        </p>
-      </Card>
-    </div>
+          <p className="text-center text-sm text-muted-foreground">
+            Our consultants will contact you via {data.communicationPreference || 'your preferred method'} within 24 hours
+          </p>
+        </Card>
+      </div>
+    </>
   );
 };
