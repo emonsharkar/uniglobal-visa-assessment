@@ -108,14 +108,16 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
             </h2>
           </div>
 
-          <div className="bg-muted p-8 rounded-lg space-y-2">
-            <p className="text-6xl md:text-7xl font-bold text-primary">
-              {percentage}%
-            </p>
-            <p className="text-lg text-muted-foreground">
-              VISA Success Probability
-            </p>
-          </div>
+          {percentage >= 0 && (
+            <div className="bg-muted p-8 rounded-lg space-y-2">
+              <p className="text-6xl md:text-7xl font-bold text-primary">
+                {percentage}%
+              </p>
+              <p className="text-lg text-muted-foreground">
+                VISA Success Probability
+              </p>
+            </div>
+          )}
 
           <p className="text-lg text-foreground max-w-lg mx-auto">
             {message}
