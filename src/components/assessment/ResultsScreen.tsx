@@ -34,27 +34,44 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
   useEffect(() => {
     const processResults = async () => {
       try {
-        setIsCalculating(true);
+        // Check if this is a consultation case - skip AI analysis
+        const isConsultationCase = 
+          data.hasMOI === true || 
+          (data.hasEnglishTest === false && data.willAppear === false && data.hasMOI === false);
         
-        // Call AI-powered calculation
-        const { data: calcResult, error: calcError } = await supabase.functions.invoke('calculate-visa-ratio', {
-          body: data,
-        });
-        
-        if (calcError) {
-          console.error('Error calculating visa ratio:', calcError);
-          // Fallback to simple calculation
-          const fallback = calculateVisaRatio(data);
-          setPercentage(fallback.percentage);
-          setStatus(fallback.status);
-          setMessage(fallback.message);
+        if (isConsultationCase) {
+          // Set consultation result immediately without AI analysis
+          const consultationResult = calculateVisaRatio(data);
+          setPercentage(consultationResult.percentage);
+          setStatus(consultationResult.status);
+          setMessage(consultationResult.message);
+          setIsCalculating(false);
         } else {
-          setPercentage(calcResult.percentage);
-          setStatus(calcResult.status);
-          setMessage(calcResult.message);
+          // Normal flow: show loading and use AI analysis
+          setIsCalculating(true);
+          
+          // Call AI-powered calculation
+          const { data: calcResult, error: calcError } = await supabase.functions.invoke('calculate-visa-ratio', {
+            body: data,
+          });
+          
+          if (calcError) {
+            console.error('Error calculating visa ratio:', calcError);
+            // Fallback to simple calculation
+            const fallback = calculateVisaRatio(data);
+            setPercentage(fallback.percentage);
+            setStatus(fallback.status);
+            setMessage(fallback.message);
+          } else {
+            setPercentage(calcResult.percentage);
+            setStatus(calcResult.status);
+            setMessage(calcResult.message);
+          }
+          
+          setIsCalculating(false);
         }
         
-        // Send email
+        // Send email in both cases
         const { error: emailError } = await supabase.functions.invoke('send-assessment-email', {
           body: data,
         });
@@ -72,7 +89,6 @@ export const ResultsScreen = ({ data, onTryAgain }: ResultsScreenProps) => {
         setPercentage(fallback.percentage);
         setStatus(fallback.status);
         setMessage(fallback.message);
-      } finally {
         setIsCalculating(false);
       }
     };
