@@ -540,19 +540,28 @@ export default function Assessment() {
 
     // Step 7: Latest qualification
     if (currentStep === 7) {
+      // Filter qualifications - if MOI is selected, hide SSC and HSC
+      const qualifications = [
+        { value: 'SSC', label: 'SSC or Equivalent' },
+        { value: 'HSC', label: 'HSC or Equivalent' },
+        { value: 'Bachelors', label: 'Bachelors or Equivalent' },
+        { value: 'Masters', label: 'Masters or Equivalent' },
+        { value: 'PhD', label: 'Ph.D. or Equivalent' },
+      ].filter(qual => {
+        // Hide SSC and HSC if user has MOI
+        if (data.hasMOI === true && (qual.value === 'SSC' || qual.value === 'HSC')) {
+          return false;
+        }
+        return true;
+      });
+
       return (
         <QuestionCard 
           title="Your Latest Qualification"
           description="Select your highest educational qualification"
         >
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[
-              { value: 'SSC', label: 'SSC or Equivalent' },
-              { value: 'HSC', label: 'HSC or Equivalent' },
-              { value: 'Bachelors', label: 'Bachelors or Equivalent' },
-              { value: 'Masters', label: 'Masters or Equivalent' },
-              { value: 'PhD', label: 'Ph.D. or Equivalent' },
-            ].map((qual) => (
+            {qualifications.map((qual) => (
               <SelectableCard
                 key={qual.value}
                 title={qual.label}
