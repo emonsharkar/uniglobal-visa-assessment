@@ -8,6 +8,15 @@ export type VisaStatus =
   | "NOT_POSSIBLE";
 
 export const calculateVisaRatio = (data: AssessmentData): { percentage: number; status: VisaStatus; message: string } => {
+  // Special case: Has MOI - needs consultation
+  if (data.hasMOI === true) {
+    return {
+      percentage: -1, // Special value to indicate no percentage should be shown
+      status: "NEED_CONSULTATION",
+      message: "We will contact you to discuss your Medium of Instruction documentation and guide you through the application process."
+    };
+  }
+
   // Special case: No English test, won't take one, and no MOI
   if (data.hasEnglishTest === false && data.willAppear === false && data.hasMOI === false) {
     return {

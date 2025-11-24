@@ -12,6 +12,20 @@ serve(async (req) => {
 
   try {
     const assessmentData = await req.json();
+    
+    // Special case: Has MOI - needs consultation
+    if (assessmentData.hasMOI === true) {
+      return new Response(
+        JSON.stringify({
+          percentage: -1,
+          status: "NEED_CONSULTATION",
+          message: "We will contact you to discuss your Medium of Instruction documentation and guide you through the application process.",
+          keyFactors: []
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
