@@ -6,6 +6,7 @@ import { SelectableCard } from "@/components/assessment/SelectableCard";
 import { CountryGrid } from "@/components/assessment/CountryGrid";
 import { QualificationForm } from "@/components/assessment/QualificationForm";
 import { DegreeSelection } from "@/components/assessment/DegreeSelection";
+import { FundingInfo } from "@/components/assessment/FundingInfo";
 import { ResultsScreen } from "@/components/assessment/ResultsScreen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +44,7 @@ export default function Assessment() {
     hasEnglishTest: null,
   });
 
-  const totalSteps = 12;
+  const totalSteps = 13;
 
   if (!started) {
     return <WelcomeScreen onStart={() => setStarted(true)} />;
@@ -694,8 +695,25 @@ export default function Assessment() {
       );
     }
 
-    // Step 12: Communication preference
+    // Step 12: Funding Information
     if (currentStep === 12) {
+      return (
+        <QuestionCard 
+          title="Give Some Information about Your Fund"
+          description="Choose the option below"
+        >
+          <FundingInfo
+            onContinue={(fundingInfo) => {
+              setData({ ...data, fundingInfo });
+              setCurrentStep(13);
+            }}
+          />
+        </QuestionCard>
+      );
+    }
+
+    // Step 13: Communication preference
+    if (currentStep === 13) {
       return (
         <QuestionCard 
           title="Preferred Communication Method"
@@ -708,7 +726,7 @@ export default function Assessment() {
               selected={data.communicationPreference === 'whatsapp'}
               onClick={() => {
                 setData({ ...data, communicationPreference: 'whatsapp' });
-                setCurrentStep(13);
+                setCurrentStep(14);
               }}
             />
             <SelectableCard
@@ -717,7 +735,7 @@ export default function Assessment() {
               selected={data.communicationPreference === 'email'}
               onClick={() => {
                 setData({ ...data, communicationPreference: 'email' });
-                setCurrentStep(13);
+                setCurrentStep(14);
               }}
             />
             <SelectableCard
@@ -726,7 +744,7 @@ export default function Assessment() {
               selected={data.communicationPreference === 'phone'}
               onClick={() => {
                 setData({ ...data, communicationPreference: 'phone' });
-                setCurrentStep(13);
+                setCurrentStep(14);
               }}
             />
           </div>
@@ -734,15 +752,15 @@ export default function Assessment() {
       );
     }
 
-    // Step 13: Results
-    if (currentStep === 13) {
+    // Step 14: Results
+    if (currentStep === 14) {
       return <ResultsScreen data={data} onTryAgain={handleReset} />;
     }
 
     return null;
   };
 
-  if (currentStep === 13) {
+  if (currentStep === 14) {
     return renderStep();
   }
 
