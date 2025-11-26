@@ -30,5 +30,24 @@ export type AssessmentData = {
   preferredDegree?: 'Bachelors' | 'Masters' | 'Doctorate' | 'Diploma' | null;
   selectedDegrees?: string[];
   dependents?: 0 | 1 | 2 | 3 | null;
+  fundingInfo?: {
+    primarySponsor: {
+      category: 'first-blood' | 'second-blood' | 'third-blood' | 'in-laws' | 'self' | null;
+      relation?: string;
+      name?: string;
+      profession?: string;
+      amount?: string;
+      address?: string;
+      moneyLocation?: string;
+    };
+    otherSponsors?: Array<{
+      name: string;
+      relation: string;
+      amountRange: string;
+      specificAmount?: string;
+      bankStatementType: string;
+      address: string;
+    }>;
+  };
   communicationPreference?: 'whatsapp' | 'email' | 'phone' | null;
 };
